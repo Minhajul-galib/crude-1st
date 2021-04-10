@@ -6,7 +6,7 @@ $delete_id = $_GET['delete_id'];
 $photo_name = $_GET['photo'];
 
 unlink('photos/' . $photo_name);
-delete('port', $delete_id);
+delete('staff', $delete_id);
 header('location:index.php');
 }
 ?>
@@ -14,7 +14,7 @@ header('location:index.php');
 <html lang="en">
 <head>
 	<meta charset="UTF-8">
-	<title>Development Area</title>
+	<title>All Staffs</title>
 	<!-- ALL CSS FILES  -->
 	<link rel="stylesheet" href="assets/css/bootstrap.min.css">
 	<link rel="stylesheet" href="assets/css/style.css">
@@ -36,15 +36,23 @@ header('location:index.php');
 	if(isset($_POST['gender'])){
 		$gender =$_POST['gender'];
 	}
-	$dept= $_POST['dept'];
+	
 
-// form validation	
-	if(empty($name) || empty($email) || empty($cell) || empty($username) || empty($age) || empty($location) || empty($gender) || empty($dept)){
+	
+	// form validation	
+	if(empty($name) || empty($email) || empty($cell) || empty($username) || empty($age) || empty($location) || empty($gender) ){
 		$msg = validate('All fields are required');
 	}
 	else if(filter_var($email, FILTER_VALIDATE_EMAIL)== false){
 		$msg = validate('Invalid email');
 		
+	}elseif(dataCheck('staff' , 'email' , $email)){     
+		$msg = validate('Email already exists !' , 'warning');
+		
+	}elseif( dataCheck('staff' , 'username' , $username) ){
+		$msg = validate('User name already exists !' , 'warning');
+	}elseif( dataCheck('staff' , 'cell' , $cell)){
+		$msg =validate('Cell already exists !' , 'warning');
 	}
 	else{
 	
@@ -56,8 +64,8 @@ header('location:index.php');
 
 		if( empty($err_msg)){
 				// Data insert
-	create("INSERT INTO port (name, email, cell, username, age, location, gender, dept, photo ) 
-	VALUES ('$name' , '$email' , '$cell' , '$username' , '$age' , '$location', '$gender' , '$dept' , '$unique_name')");
+	create("INSERT INTO staff (name, email, cell, username, age, location, gender, photo ) 
+	VALUES ('$name' , '$email' , '$cell' , '$username' , '$age' , '$location', '$gender' , '$unique_name')");
 				
 				$msg = validate('Data stable' ,  'success');
 		}else{
@@ -71,24 +79,37 @@ header('location:index.php');
 	?>
 
 	<div class="wrap-table">
-		<a class="btn btn-sm btn-primary" data-toggle="modal" href="#add_student_modal">Add new student</a>
+		<a class="btn btn-sm btn-primary" data-toggle="modal" href="#add_student_modal">Add new Staff</a>
+		<a class="btn btn-sm btn-primary" href="http://localhost/Assignment%20School%20data/">Back to dashboard</a>
 		<br>
 		<?php
 		if(isset($msg)){
 			echo $msg;
-		}
+		} 
 		?>
 		<br>
 		<div class="card shadow">
+
+		<form style="padding:10px 0px 0px 20px;" class="form-inline" action="" method="POST" >
+			<div class="form-group mx-sn-3 mb-2">
+				<label for="inputPassword2" class="sr-only">search</label>
+				<input name="search" type="search" class="form-control" id="inptupassword2" placeholder="Search">
+
+			</div>
+			<button name="searchbtn" type="submit" class="btn btn-primary mb-2">Search</button>
+
+		</form>
+
 			<div class="card-body">
-				<h2>All Students</h2>
+				<h2>All Staffs</h2>
 				<table class="table table-striped">
 					<thead>
 						<tr>
-							<th>#</th>
+							<th>ID</th>
 							<th>Name</th>
 							<th>Email</th>
 							<th>Cell</th>
+							<th>User name</th>
 							<th>Photo</th>
 							<th>Action</th>
 						</tr>
@@ -96,7 +117,20 @@ header('location:index.php');
 					<tbody>
 
 					<?php
-					$data = all('port');
+						$sql ="SELECT  *  FROM  staff";
+
+						$data = connect()->query($sql);
+						
+						if(isset($_POST['searchbtn'])){
+	
+						$search=$_POST['search'];
+	
+						$sql ="SELECT  *  FROM  staff WHERE name LIKE '%$search%' OR cell LIKE '%$search%' OR cell LIKE '%$search%' ";
+	
+						$data = connect()->query($sql);
+	
+						}
+
 					$i= 1;
 
 					while($student = $data->fetch_object()) :
@@ -107,6 +141,7 @@ header('location:index.php');
 							<td><?php echo $student->name ?></td>
 							<td><?php echo $student->email ?></td>
 							<td><?php echo $student->cell ?></td>
+							<td><?php echo $student->username ?></td>
 							<td><img src="photos/<?php echo $student->photo ?>" alt=""></td>
 							<td>
 								<a class="btn btn-sm btn-info" href="show.php?show_id=<?php echo $student->id ?>">View</a>
@@ -127,12 +162,12 @@ header('location:index.php');
 		<div class="modal-dialog modal-dialog-centered">
 			<div style="padding:0px 20px 0px 20px;" class="modal-content">
 				<div class="modal-header"></div>
-				<h3>  Add new student</h3>
+				<h3>  Add new Staff</h3>
 				<div class="modal-body"></div>
 				<form action="" method="POST" enctype="multipart/form-data">
 				
 					<div class="form-group">
-						<label for="">Student name</label>
+						<label for="">Staff name</label>
 						<input name="name" class="form-control" type="text">
 					</div>
 
@@ -173,19 +208,6 @@ header('location:index.php');
 					<label for="">Gender</label><br>
 <input name="gender" type="radio" checked value ="male" id="male"><label for="male">Male</label>
 <input name="gender" type="radio" value ="female" id="female"><label for="femal">Female</label>
-				</div>
-				
-				<div class="form-group">
-					<label for="">Department</label>
-					<select class="form-control"  name="dept" id="">
-						<option value="">--SELECT--</option>
-						<option value="Math">MATH</option>
-						<option value="CSC">CSC</option>
-						<option value="EEE">EEE</option>
-						<option value="English">ENG</option>
-						<option value="Bangla">BANGLA</option>
-						<option value="LAW">LAW</option>
-					</select>
 				</div>
 
 				<div class="form-group">

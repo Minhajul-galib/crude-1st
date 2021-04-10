@@ -14,7 +14,7 @@ include_once "autoload.php";
 		if(isset($_POST['gender'])){
 			$gender =$_POST['gender'];
 		}
-		$dept= $_POST['dept'];
+		$dept= $_POST['dept']; 
 		$id = $_GET['edit_id'];
 	
 	// form validation	
@@ -34,11 +34,12 @@ include_once "autoload.php";
 			}else{
 				$photo_name = $_POST['old_photo'];
 			}
-			connect()->query("UPDATE port SET name='$name', email='$email', 
+			
+			update("UPDATE staff SET name='$name', email='$email', 
 			cell='$cell', username='$username', location='$location', 
 			age= '$age', gender='$gender', dept='$dept' , photo='$photo_name' 
 			WHERE id='$id' ");
-	
+			$msg= validate('Data updated successfully!','success');
 	
 		}
 	}
@@ -48,7 +49,7 @@ include_once "autoload.php";
 if(isset($_GET['edit_id'])){
 	$id=$_GET['edit_id'];
 
-	$edit_data=find('port' , $id);
+	$edit_data=find('staff' , $id);
 }
 
 ?>

@@ -32,12 +32,26 @@ function delete($table, $id)
 {
     connect()->query("DELETE FROM port WHERE id='$id' ");
 }
+/**
+ * Data check function
+ */
+function dataCheck($table, $column, $data)
+{
+    $data = connect()->query("SELECT $column FROM $table WHERE $column ='$data' ");
+
+    if( $data->num_rows > 0){
+        return true;
+    }else{
+        return false;
+    }
+}
 
 /**
  * Data  for update
  */
-function update()
+function update($sql)
 {
+    connect()->query($sql);
 }
 
 // validate function
@@ -49,6 +63,7 @@ function move($file, $location='/' , array $type=['jpg','png','gif','jpeg'])
 {
 // file name
 // File manegment
+$msg='';
 $file_name = $file['name'];
 $file_name_tmp = $file['tmp_name'];
 $file_arr =  explode('.', $file_name);
@@ -63,7 +78,9 @@ if(in_array($file_ext, $type) ==false){
 move_uploaded_file($file_name_tmp, 'photos/' . $unique_name);
 
 }
+
 return[ 
+    
     'unique_name' => $unique_name,
     'err_msg' => $msg
 ];

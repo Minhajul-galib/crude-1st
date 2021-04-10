@@ -8,10 +8,10 @@ include_once "autoload.php";
  if(isset($_GET['show_id'])){
 	$id =$_GET['show_id'];
 
-	$student = find('port' , $id);
+	$student = find('staff' , $id);
  }
 
-?>
+?> 
 <!DOCTYPE html>
 <html lang="en">
 <head>
